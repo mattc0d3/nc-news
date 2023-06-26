@@ -5,8 +5,6 @@ const { handlePsqlErrors, handleCustomErrors, handleInternalErrors} = require(`$
 
 app.get("/api/topics", getTopics)
 
-app.use(handlePsqlErrors)
-
 app.use(handleCustomErrors)
 
 app.use(handleInternalErrors)

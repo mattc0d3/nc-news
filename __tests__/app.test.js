@@ -27,6 +27,7 @@ describe("GET /api/topics", () => {
             .expect(200)
             .then(({ body }) => {
                 expect(body.topics).toBeInstanceOf(Array)
+                expect(body.topics.length).toBe(3)
                 body.topics.forEach(topic => {
                     expect(topic).toMatchObject({
                         slug: expect.any(String),
@@ -34,5 +35,10 @@ describe("GET /api/topics", () => {
                     })
                 })
             })
+    })
+    test("returns 404 error status if bad endpoint requested", () => {
+        return request(app)
+            .get("/api/tocips")
+            .expect(404)
     })
 })
