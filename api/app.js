@@ -3,7 +3,7 @@ const app = express()
 const { getEndpoints } = require(`${__dirname}/controllers/api.controllers`)
 const { getTopics } = require(`${__dirname}/controllers/topics.controllers`)
 const { getArticles } = require(`${__dirname}/controllers/articles.controllers`)
-const { handlePsqlErrors, handleCustomErrors, handleInternalErrors} = require(`${__dirname}/errors/errors`)
+const { handleCustomErrors, handleInternalErrors} = require(`${__dirname}/errors/errors`)
 
 app.get("/api", getEndpoints)
 
