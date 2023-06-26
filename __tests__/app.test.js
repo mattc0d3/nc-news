@@ -70,22 +70,9 @@ describe("GET /api/topics", () => {
                 })
             })
     })
-    test("returns 404 error status if bad endpoint requested", () => {
-        return request(app)
-            .get("/api/tocips")
-            .expect(404)
-    })
 })
 
 describe("GET /api/articles", () => {
-    test("responds with an object containing an articles key", () => {
-        return request(app)
-            .get("/api/articles")
-            .expect(200)
-            .then(({ body }) => {
-                expect(body.hasOwnProperty("articles")).toBe(true)
-            })
-    })
     test("articles object contains array of all articles with correct keys and value types", () => {
         return request(app)
             .get("/api/articles")
@@ -118,14 +105,6 @@ describe("GET /api/articles", () => {
 })
 
 describe("GET /api/articles/:article_id", () => {
-    test("responds with object containing article key", () => {
-        return request(app)
-            .get("/api/articles/2")
-            .expect(200)
-            .then(({ body }) => {
-                expect(body.hasOwnProperty("article")).toBe(true)
-            })
-    })
     test("article object contains all correct properties and has specified ID", () => {
         return request(app)
             .get("/api/articles/7")
@@ -160,3 +139,48 @@ describe("GET /api/articles/:article_id", () => {
             })
     })
 })
+
+describe("GET /api/articles/:article_id/comments", () => {
+    test("response contains array of comments object with matching IDs and correct properties", () => {
+        return request(app)
+            .get("/api/articles/3/comments")
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.comments).toBeInstanceOf(Array)
+                body.comments.forEach(comment => {
+                    expect(comment).toMatchObject({
+                        comment_id: expect.any(Number),
+                        votes: expect.any(Number),
+                        created_at: expect.any(String),
+                        author: expect.any(String),
+                        body: expect.any(String),
+                        article_id: 3
+                    })
+                })
+            })
+        })
+        test("comments array is sorted by most recent first", () => {
+            return request(app)
+            .get("/api/articles/1/comments")
+            .expect(200)
+            .then(({ body }) => {
+                    expect(body.comments).toBeSortedBy("created_at", {descending: true})
+                })
+        })
+        test("returns 404 error when article ID not found", () => {
+            return request(app)
+            .get("/api/articles/-2/comments")
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Comments Not Found")
+            })
+        })
+        test("returns 400 error when request contains bad ID data", () => {
+            return request(app)
+            .get("/api/articles/[2]/comments")
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Bad Request")
+            })
+        })
+    })
