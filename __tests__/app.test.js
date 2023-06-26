@@ -77,6 +77,46 @@ describe("GET /api/topics", () => {
     })
 })
 
+describe("GET /api/articles", () => {
+    test("responds with an object containing an articles key", () => {
+        return request(app)
+            .get("/api/articles")
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.hasOwnProperty("articles")).toBe(true)
+            })
+    })
+    test("articles object contains array of all articles with correct keys and value types", () => {
+        return request(app)
+            .get("/api/articles")
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.articles).toBeInstanceOf(Array)
+                expect(body.articles.length).toBe(13)
+                body.articles.forEach(article => {
+                    expect(article).toMatchObject({
+                        article_id: expect.any(Number),
+                        title: expect.any(String),
+                        topic: expect.any(String),
+                        author: expect.any(String),
+                        created_at: expect.any(String),
+                        votes: expect.any(Number),
+                        comment_count: expect.any(String)
+                    })
+                    expect(article.hasOwnProperty("body")).toBe(false)
+                })
+            })
+    })
+    test("articles array is sorted by date in descending order", () => {
+        return request(app)
+            .get("/api/articles")
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.articles).toBeSortedBy("created_at", { descending: true })
+            })
+    })
+})
+
 describe("GET /api/articles/:article_id", () => {
     test("responds with object containing article key", () => {
         return request(app)
