@@ -76,3 +76,14 @@ describe("GET /api/topics", () => {
             .expect(404)
     })
 })
+
+describe("GET /api/articles", () => {
+    test("responds with an object containing an articles key", () => {
+        return request(app)
+            .get("/api/articles")
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.hasOwnProperty("articles")).toBe(true)
+            })
+    })
+})
