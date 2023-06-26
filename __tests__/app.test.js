@@ -76,3 +76,47 @@ describe("GET /api/topics", () => {
             .expect(404)
     })
 })
+
+describe("GET /api/articles/:article_id", () => {
+    test("responds with object containing article key", () => {
+        return request(app)
+            .get("/api/articles/2")
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.hasOwnProperty("article")).toBe(true)
+            })
+    })
+    test("article object contains all correct properties and has specified ID", () => {
+        return request(app)
+            .get("/api/articles/7")
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.article).toMatchObject({
+                    article_id: 7,
+                    author: expect.any(String),
+                    title: expect.any(String),
+                    body: expect.any(String),
+                    topic: expect.any(String),
+                    created_at: expect.any(String),
+                    votes: expect.any(Number),
+                    article_img_url: expect.any(String)
+                })
+            })
+    })
+    test("responds with 404 status and article not found error when id does not exist", () => {
+        return request(app)
+            .get("/api/articles/999")
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Article Not Found")
+            })
+    })
+    test("responds with 400 status and bad request error when id not found", () => {
+        return request(app)
+            .get("/api/articles/eight")
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Bad Request")
+            })
+    })
+})
