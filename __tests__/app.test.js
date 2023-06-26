@@ -69,9 +69,17 @@ describe("GET /api/articles/:article_id", () => {
                 })
             })
     })
-    test("responds with 400 status and bad request error when id not found", () => {
+    test("responds with 404 status and article not found error when id does not exist", () => {
         return request(app)
             .get("/api/articles/999")
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Article Not Found")
+            })
+    })
+    test("responds with 400 status and bad request error when id not found", () => {
+        return request(app)
+            .get("/api/articles/eight")
             .expect(400)
             .then(({ body }) => {
                 expect(body.msg).toBe("Bad Request")
