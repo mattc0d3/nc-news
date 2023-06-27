@@ -12,6 +12,17 @@ afterAll(() => {
     return db.end()
 })
 
+describe("ALL non-existent path", () => {
+    test("responds with a 404 custom error message when bad endpoint is requested", () => {
+        return request(app)
+            .get("/api/abcd123")
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Not Found")
+            })
+    })
+})
+
 describe("GET /api", () => {
     test("responds with JSON object containing endpoints key", () => {
         return request(app)
@@ -38,11 +49,6 @@ describe("GET /api", () => {
                     }
                 }))
             })
-    })
-    test("returns 404 error status if bad endpoint requested", () => {
-        return request(app)
-            .get("/aip")
-            .expect(404)
     })
 })
 
@@ -127,7 +133,7 @@ describe("GET /api/articles/:article_id", () => {
             .get("/api/articles/999")
             .expect(404)
             .then(({ body }) => {
-                expect(body.msg).toBe("Article Not Found")
+                expect(body.msg).toBe("Not Found")
             })
     })
     test("responds with 400 status and bad request error when id not found", () => {
@@ -147,6 +153,7 @@ describe("GET /api/articles/:article_id/comments", () => {
             .expect(200)
             .then(({ body }) => {
                 expect(body.comments).toBeInstanceOf(Array)
+                expect(body.comments.length > 0).toBe(true)
                 body.comments.forEach(comment => {
                     expect(comment).toMatchObject({
                         comment_id: expect.any(Number),
@@ -158,29 +165,37 @@ describe("GET /api/articles/:article_id/comments", () => {
                     })
                 })
             })
-        })
-        test("comments array is sorted by most recent first", () => {
-            return request(app)
+    })
+    test("returns 200 status code and empty object if no comments match valid article ID", () => {
+        return request(app)
+            .get("/api/articles/4/comments")
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.comments).toEqual([])
+            })
+    })
+    test("comments array is sorted by most recent first", () => {
+        return request(app)
             .get("/api/articles/1/comments")
             .expect(200)
             .then(({ body }) => {
-                    expect(body.comments).toBeSortedBy("created_at", {descending: true})
-                })
-        })
-        test("returns 404 error when article ID not found", () => {
-            return request(app)
+                expect(body.comments).toBeSortedBy("created_at", { descending: true })
+            })
+    })
+    test("returns 404 error when article ID not found", () => {
+        return request(app)
             .get("/api/articles/-2/comments")
             .expect(404)
             .then(({ body }) => {
-                expect(body.msg).toBe("Comments Not Found")
+                expect(body.msg).toBe("Not Found")
             })
-        })
-        test("returns 400 error when request contains bad ID data", () => {
-            return request(app)
+    })
+    test("returns 400 error when request contains bad ID data", () => {
+        return request(app)
             .get("/api/articles/[2]/comments")
             .expect(400)
             .then(({ body }) => {
                 expect(body.msg).toBe("Bad Request")
             })
-        })
     })
+})
