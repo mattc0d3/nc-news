@@ -33,6 +33,14 @@ exports.insertCommentByArticleId = (article_id, username, body) => {
         INSERT INTO comments
         (article_id, author, body)
         VALUES ($1, $2, $3) RETURNING *`, [article_id, username, body]
-        ).then(({ rows }) => {
-            return rows[0]})
+        ).then(({ rows }) => rows[0])
+}
+
+exports.updateArticleById = (article_id, newVotes) => {
+    return db.query(`
+        UPDATE articles
+        SET votes = votes + $1
+        WHERE article_id = $2
+        RETURNING * `, [newVotes, article_id])
+        .then(({ rows }) => rows[0])
 }

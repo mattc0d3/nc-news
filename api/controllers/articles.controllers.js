@@ -1,4 +1,4 @@
-const { selectArticles, selectArticleById, selectCommentsByArticleId, insertCommentByArticleId } = require(`${__dirname}/../models/articles.models`)
+const { selectArticles, selectArticleById, selectCommentsByArticleId, insertCommentByArticleId, updateArticleById } = require(`${__dirname}/../models/articles.models`)
 const { checkCategoryExists } = require(`${__dirname}/../utils`)
 
 exports.getArticles = (req, res, next) => {
@@ -45,6 +45,19 @@ exports.postCommentByArticleId = (req, res, next) => {
         .then(resolvedPromises => {
             const comment = resolvedPromises[2]
             res.status(201).send({ comment })
+        })
+        .catch(next)
+}
+
+exports.patchArticleById = (req, res, next) => {
+    const { article_id } = req.params
+    const { inc_votes } = req.body
+    const promises = [checkCategoryExists('articles', 'article_id', article_id), updateArticleById(article_id, inc_votes)]
+    
+    Promise.all(promises)
+        .then(resolvedPromises => {
+            article = resolvedPromises[1]
+            res.status(201).send({ article })
         })
         .catch(next)
 }
