@@ -200,7 +200,7 @@ describe("GET /api/articles/:article_id/comments", () => {
     })
 })
 
-describe.only("PATCH /api/articles/:article_id", () => {
+describe("PATCH /api/articles/:article_id", () => {
     test("responds with article containing updated vote count", () => {
         return request(app)
             .patch("/api/articles/5")
@@ -208,6 +208,51 @@ describe.only("PATCH /api/articles/:article_id", () => {
             .expect(201)
             .then(({ body }) => {
                 expect(body.article.votes).toBe(3)
+            })
+    })
+    test("handles negative vote update", () => {
+        return request(app)
+            .patch("/api/articles/9")
+            .send({ inc_votes: -8 })
+            .expect(201)
+            .then(({ body }) => {
+                expect(body.article.votes).toBe(-8)
+            })
+    })
+    test("ignores additional properties on patch request body", () => {
+        return request(app)
+            .patch("/api/articles/12")
+            .send({ inc_votes: 10, extra: "test_data" })
+            .expect(201)
+            .then(({ body }) => {
+                expect(body.article.votes).toBe(10)
+            })
+    })
+    test("returns 404 error when article ID does not exist", () => {
+        return request(app)
+            .patch("/api/articles/123")
+            .send({ inc_votes: 5 })
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Not Found")
+            })
+    })
+    test("returns 400 error when request body has missing data", () => {
+        return request(app)
+            .patch("/api/articles/5")
+            .send({ key: "value" })
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Bad Request")
+            })
+    })
+    test("returns 400 error when ID parameter contains bad data", () => {
+        return request(app)
+            .patch("/api/articles/number")
+            .send({ inc_votes: 5 })
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Bad Request")
             })
     })
 })
