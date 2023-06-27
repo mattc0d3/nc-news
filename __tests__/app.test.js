@@ -199,3 +199,24 @@ describe("GET /api/articles/:article_id/comments", () => {
             })
     })
 })
+
+describe("DELETE /api/comments/:comment_id", () => {
+    test("responds with 204 status and no content on response body", () => {
+        return request(app)
+            .delete("/api/comments/4")
+            .expect(204)
+            .then(({ body }) => expect(body).toEqual({}))
+    })
+    test("returns 404 error when comment ID not found", () => {
+        return request(app)
+            .delete("/api/comments/100")
+            .expect(404)
+            .then(({ body }) => expect(body.msg).toEqual("Not Found"))
+    })
+    test("returns 400 error when request contains bad ID data", () => {
+        return request(app)
+            .delete("/api/comments/£!>")
+            .expect(400)
+            .then(({ body }) => expect(body.msg).toEqual("Bad Request"))
+    })
+})
