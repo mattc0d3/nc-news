@@ -53,5 +53,10 @@
       "votes": 0,
       "created_at": "2020-09-19T23:10:00.000Z"
     }
+  },
+  "DELETE /api/comments/:comment_id": {
+    "description": "removes comment according to specified ID, no data returned",
+    "queries": [],
+    "exampleResponse": {}
   }
 }
