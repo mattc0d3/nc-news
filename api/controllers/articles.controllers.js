@@ -1,22 +1,20 @@
-const { selectArticles, selectArticleById, selectCommentsByArticleId, updateArticleById } = require(`${__dirname}/../models/articles.models`)
+const { selectArticles, selectArticleById, selectCommentsByArticleId, insertCommentByArticleId, updateArticleById } = require(`${__dirname}/../models/articles.models`)
 const { checkCategoryExists } = require(`${__dirname}/../utils`)
 
 exports.getArticles = (req, res, next) => {
     selectArticles().then(articles => {
         res.status(200).send({ articles })
     })
-    .catch(err => {
-        next(err)
-    })
+    .catch(next)
 }
 
 exports.getArticleById = (req, res, next) => {
     const { article_id } = req.params
-    const promises = [selectArticleById(article_id), checkCategoryExists('articles', 'article_id', article_id)]
+    const promises = [checkCategoryExists('articles', 'article_id', article_id), selectArticleById(article_id)]
     
     Promise.all(promises)
         .then(resolvedPromises => {
-            article = resolvedPromises[0]
+            article = resolvedPromises[1]
             res.status(200).send({ article })
         })
         .catch(next)
@@ -24,12 +22,29 @@ exports.getArticleById = (req, res, next) => {
 
 exports.getCommentsByArticleId = (req, res, next) => {
     const { article_id } = req.params
-    const promises = [selectCommentsByArticleId(article_id), checkCategoryExists('articles', 'article_id', article_id)]
+    const promises = [checkCategoryExists('articles', 'article_id', article_id), selectCommentsByArticleId(article_id)]
     
     Promise.all(promises)
         .then(resolvedPromises => {
-            comments = resolvedPromises[0]
+            comments = resolvedPromises[1]
             res.status(200).send({ comments })
+        })
+        .catch(next)
+}
+
+exports.postCommentByArticleId = (req, res, next) => {
+    const { article_id } = req.params
+    const { username, body } = req.body
+    const promises = [
+                        checkCategoryExists('articles', 'article_id', article_id), 
+                        checkCategoryExists('users', 'username', username), 
+                        insertCommentByArticleId(article_id, username, body)
+                    ]
+
+    Promise.all(promises)
+        .then(resolvedPromises => {
+            const comment = resolvedPromises[2]
+            res.status(201).send({ comment })
         })
         .catch(next)
 }

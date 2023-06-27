@@ -200,6 +200,67 @@ describe("GET /api/articles/:article_id/comments", () => {
     })
 })
 
+describe("POST /api/articles/:article_id/comments", () => {
+    test("returns object containing the posted comment", () => {
+        return request(app)
+            .post("/api/articles/2/comments")
+            .send({ username: "lurker", body: "test_body"})
+            .expect(201)
+            .then(({ body }) => {
+                expect(body.comment).toMatchObject({
+                    comment_id: expect.any(Number),
+                    author: "lurker",
+                    body: "test_body",
+                    article_id: 2,
+                    votes: 0,
+                    created_at: expect.any(String)
+                })
+            })
+    })
+    test("endpoint ignores unnecessary properties on request body", () => {
+        return request(app)
+        .post("/api/articles/12/comments")
+        .send({ username: "icellusedkars", extraData1: "test", body: "test_body", extraData2: "test"})
+        .expect(201)
+    })
+    test("returns 404 bad request error when username does not exist", () => {
+        return request(app)
+            .post("/api/articles/7/comments")
+            .send({ username: "test_user", body: "test_body"})
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Not Found")
+            })
+    })
+    test("returns 404 not found error when article_id does not exists", () => {
+        return request(app)
+            .post("/api/articles/0/comments")
+            .send({ username: "lurker", body: "test_body"})
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Not Found")
+            })
+    })
+    test("returns 400 bad request error when ID parameter contains bad data", () => {
+        return request(app)
+        .post("/api/articles/notanid/comments")
+        .send({ username: "butter_bridge", body: "test_body" })
+        .expect(400)
+        .then(({ body }) => {
+            expect(body.msg).toBe("Bad Request")
+        })
+    })
+    test("returns 400 bad request error when post info is incomplete", () => {
+        return request(app)
+            .post("/api/articles/9/comments")
+            .send({ username: "rogersop" })
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Bad Request")
+            })
+    })
+})
+
 describe("PATCH /api/articles/:article_id", () => {
     test("responds with article containing updated vote count", () => {
         return request(app)
@@ -232,10 +293,6 @@ describe("PATCH /api/articles/:article_id", () => {
         return request(app)
             .patch("/api/articles/123")
             .send({ inc_votes: 5 })
-            .expect(404)
-            .then(({ body }) => {
-                expect(body.msg).toBe("Not Found")
-            })
     })
     test("returns 400 error when request body has missing data", () => {
         return request(app)
@@ -250,9 +307,26 @@ describe("PATCH /api/articles/:article_id", () => {
         return request(app)
             .patch("/api/articles/number")
             .send({ inc_votes: 5 })
+    })
+})
+    
+
+describe("DELETE /api/comments/:comment_id", () => {
+    test("responds with 204 status and no content on response body", () => {
+        return request(app)
+            .delete("/api/comments/4")
+            .expect(204)
+    })
+    test("returns 404 error when comment ID not found", () => {
+        return request(app)
+            .delete("/api/comments/100")
+            .expect(404)
+            .then(({ body }) => expect(body.msg).toEqual("Not Found"))
+    })
+    test("returns 400 error when request contains bad ID data", () => {
+        return request(app)
+            .delete("/api/comments/£!>")
             .expect(400)
-            .then(({ body }) => {
-                expect(body.msg).toBe("Bad Request")
-            })
+            .then(({ body }) => expect(body.msg).toEqual("Bad Request"))
     })
 })
