@@ -199,3 +199,15 @@ describe("GET /api/articles/:article_id/comments", () => {
             })
     })
 })
+
+describe.only("PATCH /api/articles/:article_id", () => {
+    test("responds with article containing updated vote count", () => {
+        return request(app)
+            .patch("/api/articles/5")
+            .send({ inc_votes: 3 })
+            .expect(201)
+            .then(({ body }) => {
+                expect(body.article.votes).toBe(3)
+            })
+    })
+})
