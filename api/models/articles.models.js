@@ -27,3 +27,20 @@ exports.selectCommentsByArticleId = (article_id) => {
         ORDER BY created_at DESC`, [article_id])
         .then(({ rows }) => rows)
 }
+
+exports.insertCommentByArticleId = (article_id, username, body) => {
+    return db.query(`
+        INSERT INTO comments
+        (article_id, author, body)
+        VALUES ($1, $2, $3) RETURNING *`, [article_id, username, body]
+        ).then(({ rows }) => rows[0])
+}
+
+exports.updateArticleById = (article_id, newVotes) => {
+    return db.query(`
+        UPDATE articles
+        SET votes = votes + $1
+        WHERE article_id = $2
+        RETURNING * `, [newVotes, article_id])
+        .then(({ rows }) => rows[0])
+}
