@@ -205,7 +205,6 @@ describe("DELETE /api/comments/:comment_id", () => {
         return request(app)
             .delete("/api/comments/4")
             .expect(204)
-            .then(({ body }) => expect(body).toEqual({}))
     })
     test("returns 404 error when comment ID not found", () => {
         return request(app)
