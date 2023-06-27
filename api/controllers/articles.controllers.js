@@ -2,7 +2,8 @@ const { selectArticles, selectArticleById, selectCommentsByArticleId, insertComm
 const { checkCategoryExists } = require(`${__dirname}/../utils`)
 
 exports.getArticles = (req, res, next) => {
-    selectArticles().then(articles => {
+    const { topic, sort_by, order } = req.query
+    selectArticles(topic, sort_by, order).then(articles => {
         res.status(200).send({ articles })
     })
     .catch(next)

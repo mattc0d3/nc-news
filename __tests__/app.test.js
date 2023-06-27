@@ -310,7 +310,6 @@ describe("PATCH /api/articles/:article_id", () => {
     })
 })
     
-
 describe("DELETE /api/comments/:comment_id", () => {
     test("responds with 204 status and no content on response body", () => {
         return request(app)
@@ -346,6 +345,62 @@ describe("GET /api/users", () => {
                         avatar_url: expect.any(String)
                     })
                 })
+            })
+    })
+})
+
+describe("GET /api/articles (queries)", () => {
+    test("response filters articles by topic when query included in request", () => {
+        return request(app)
+            .get("/api/articles?topic=cats")
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.articles).toBeInstanceOf(Array)
+                expect(body.articles.length > 0).toBe(true)
+                body.articles.forEach(article => expect(article.topic).toBe("cats"))
+            })
+    })
+    test("response sorts articles by column specified in query", () => {
+        return request(app)
+            .get("/api/articles?sort_by=author")
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.articles).toBeSortedBy("author", { descending: true })
+            })
+    })
+    test("response orders articles by ascending or descending as specified", () => {
+        return request(app)
+            .get("/api/articles?order=asc")
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.articles).toBeSortedBy("created_at")
+            })
+    })
+    test("response accepts and formats articles for multiple queries", () => {
+        return request(app)
+            .get("/api/articles?sort_by=title&topic=mitch&order=desc")
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.articles.length > 0).toBe(true)
+                expect(body.articles).toBeSortedBy("title", { descending: true })
+                body.articles.forEach(article => expect(article.topic).toBe("mitch"))
+            })
+    })
+    test("ignores invalid queries and extracts valid ones", () => {
+        return request(app)
+            .get("/api/articles?topics=cats&order=asc")
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.articles.length).toBe(13)
+                expect(body.articles).toBeSortedBy("created_at")
+            })
+    })
+    test("returns 400 bad request error when query is valid but value is not", () => {
+        return request(app)
+            .get("/api/articles?topic=dogs")
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Bad Request")
             })
     })
 })
