@@ -64,7 +64,7 @@
     }
   },
   "PATCH /api/articles/article_id": {
-    "description": "updates specified article and named properties with new values. Request body must include inc_votes property to update vote count.",
+    "description": "updates specified article and named properties with new values. Request body must include inc_votes property to update vote count",
     "queries": [],
     "exampleResponse": {
       "title": "Using React Native: One Year Later",
