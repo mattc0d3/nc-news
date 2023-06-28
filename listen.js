@@ -1,4 +1,4 @@
-const app = require(`${__dirname}/app`)
+const app = require(`${__dirname}/api/app`)
 
 app.listen(9090, (err) => {
     if (err) console.log(err)
