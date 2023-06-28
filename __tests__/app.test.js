@@ -93,8 +93,7 @@ describe("GET /api/articles", () => {
                         topic: expect.any(String),
                         author: expect.any(String),
                         created_at: expect.any(String),
-                        votes: expect.any(Number),
-                        comment_count: expect.any(String)
+                        votes: expect.any(Number)
                     })
                     expect(article.hasOwnProperty("body")).toBe(false)
                 })
@@ -106,6 +105,19 @@ describe("GET /api/articles", () => {
             .expect(200)
             .then(({ body }) => {
                 expect(body.articles).toBeSortedBy("created_at", { descending: true })
+            })
+    })
+    test("articles array contains comment_count property", () => {
+        return request(app)
+            .get("/api/articles")
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.articles).toBeInstanceOf(Array)
+                expect(body.articles.length > 0).toBe(true)
+                body.articles.forEach(article => {
+                    expect(article.hasOwnProperty("comment_count")).toBe(true)
+                    expect(typeof article.comment_count).toBe("string")
+                })
             })
     })
 })
