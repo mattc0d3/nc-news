@@ -9,3 +9,8 @@ exports.checkCategoryExists = (table, column, value) => {
             }
         })
 }
+
+exports.getValidParams = (table, column) => {
+    return db.query(format(`SELECT DISTINCT %I FROM %I;`, column, table))
+        .then(({ rows }) => rows.map(row => row[column]))
+}
