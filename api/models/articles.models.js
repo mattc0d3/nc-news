@@ -2,13 +2,13 @@ const db = require(`${__dirname}/../../db/connection`)
 const { getValidParams, checkQueryIsValid } = require(`${__dirname}/../utils`)
 
 exports.selectArticles = (topic = null, sort_by = "created_at", order = "DESC") => {
-    const validTopicsPromise = getValidParams('articles', 'topic')
+    const validTopicsPromise = getValidParams('topics', 'slug')
     const validSortBy = ["article_id", "title", "topic", "author", "body", "created_at", "article_img_url"]
     const validOrder = ["ASC", "DESC"]
     order = order.toUpperCase()
     
     return Promise.all([validTopicsPromise]).then(([validTopics]) => {
-        
+
         if ((topic && !validTopics.includes(topic))
         || !validSortBy.includes(sort_by)
         || !validOrder.includes(order)) {

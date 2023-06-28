@@ -395,7 +395,12 @@ describe("GET /api/articles (queries)", () => {
                 expect(body.articles).toBeSortedBy("created_at")
             })
     })
-    test("returns 400 bad request error when query is valid but value is not", () => {
+    test("responds with 200 status code and empty object when valid topic exists but has no articles", () => {
+        return request(app)
+            .get("/api/articles?topic=paper")
+            .expect(200)
+    })
+    test("returns 400 bad request error for invalid topic query", () => {
         return request(app)
             .get("/api/articles?topic=dogs")
             .expect(400)
@@ -403,4 +408,21 @@ describe("GET /api/articles (queries)", () => {
                 expect(body.msg).toBe("Bad Request")
             })
     })
+    test("returns 400 bad request error for invalid sort_by query", () => {
+        return request(app)
+            .get("/api/articles?sort_by=invalid")
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Bad Request")
+            })
+    })
+    test("returns 400 bad request error for invalid order query", () => {
+        return request(app)
+            .get("/api/articles?order=backwards")
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Bad Request")
+            })
+    })
+
 })
