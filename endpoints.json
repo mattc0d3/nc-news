@@ -89,6 +89,19 @@
       "created_at": "2023-06-27T10:55:04.574Z"
     }
   },
+  "PATCH /api/comments/:comment_id": {
+    "description": "updates specified comment and named properties with new values. Request body must include inc_votes property to update vote count",
+    "queries": [],
+    "exampleResponse": {
+      "updatedComment": {
+        "body": "Dicta aut quo unde cupiditate dolorum. Voluptas mollitia exercitationem vel porro dolor. Ea autem est pariatur.",
+        "votes": 6,
+        "author": "jessjelly",
+        "article_id": 5,
+        "created_at": 1597515060000
+      }
+    }
+  },
   "DELETE /api/comments/:comment_id": {
     "description": "removes comment according to specified ID, no data returned",
     "queries": [],

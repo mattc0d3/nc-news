@@ -306,6 +306,10 @@ describe("PATCH /api/articles/:article_id", () => {
         return request(app)
             .patch("/api/articles/123")
             .send({ inc_votes: 5 })
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Not Found")
+            })
     })
     test("returns 400 error when request body has missing data", () => {
         return request(app)
@@ -320,6 +324,67 @@ describe("PATCH /api/articles/:article_id", () => {
         return request(app)
             .patch("/api/articles/number")
             .send({ inc_votes: 5 })
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Bad Request")
+            })
+    })
+})
+
+describe("PATCH /api/comments/:comment_id", () => {
+    test("responds with updated comment object containing updated vote count", () => {
+        return request(app)
+            .patch("/api/comments/8")
+            .send({ inc_votes: 1 })
+            .expect(201)
+            .then(({ body }) => {
+                expect(body.updatedComment.votes).toBe(1)
+            })
+    })
+    test("handles negative vote update", () => {
+        return request(app)
+            .patch("/api/comments/5")
+            .send({ inc_votes: -8 })
+            .expect(201)
+            .then(({ body }) => {
+                expect(body.updatedComment.votes).toBe(-8)
+            })
+    })
+    test("ignores additional properties on patch request body", () => {
+        return request(app)
+            .patch("/api/comments/12")
+            .send({ inc_votes: 10, extra: "test_data" })
+            .expect(201)
+            .then(({ body }) => {
+                expect(body.updatedComment.votes).toBe(10)
+            })
+    })
+    test("returns 404 error when comment ID does not exist", () => {
+        return request(app)
+            .patch("/api/comments/123")
+            .send({ inc_votes: 5 })
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Not Found")
+            })
+    })
+    test("returns 400 error when request body has missing data", () => {
+        return request(app)
+            .patch("/api/comments/5")
+            .send({ key: "value" })
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Bad Request")
+            })
+    })
+    test("returns 400 error when ID parameter contains bad data", () => {
+        return request(app)
+            .patch("/api/comments/number")
+            .send({ inc_votes: 5 })
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Bad Request")
+            })
     })
 })
     

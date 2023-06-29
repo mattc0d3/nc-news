@@ -48,10 +48,13 @@ This project creates and seeds a database of articles and user data that can be 
   - serves an array of comments matching specified article ID
 
 - PATCH /api/articles/article_id
-  - updates specified article and named properties with new values. Request body must include inc_votes property to update vote count
+  - updates specified article and named properties with new values
 
 - POST /api/articles/:article_id/comments
   - adds a comment linked to a specified article ID and username
+
+- PATCH /api/comments/:comment_id
+  - updates specified comment and named properties with new values
 
 - DELETE /api/comments/:comment_id
   - removes comment according to specified ID, no data returned
