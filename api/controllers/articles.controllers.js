@@ -1,13 +1,44 @@
 const { selectArticles, insertArticle, selectArticleById, selectCommentsByArticleId, insertCommentByArticleId, updateArticleById } = require(`${__dirname}/../models/articles.models`)
-const { checkCategoryExists } = require(`${__dirname}/../utils`)
+const { checkCategoryExists, checkPageQueryValid } = require(`${__dirname}/../utils`)
 
 exports.getArticles = (req, res, next) => {
-    const { topic, sort_by, order } = req.query
-    selectArticles(topic, sort_by, order).then(articles => {
-        res.status(200).send({ articles })
-    })
+    const { topic, sort_by, order, limit, p, total_count } = req.query
+
+    const promises = [selectArticles(topic, sort_by, order, limit, p, total_count)]
+    if (total_count === "true") promises.push(selectArticles(topic, sort_by, order, null))
+    // if (p !== 0) promises.push(checkPageQueryValid(topic, limit, p))
+
+    Promise.all(promises)
+        .then(resolvedPromises => {
+            // console.log(resolvedPromises, "<<<<<<<< resolvedPromises")
+            const articles = {}
+            articles.articles = resolvedPromises[0]
+            // console.log(resolvedPromises[0], "<<<<<<<<<<<< resolved promise[i]")
+            if (total_count === "true") articles.totalArticles = resolvedPromises[1].length
+            res.status(200).send(articles)
+        })
     .catch(next)
 }
+
+
+// exports.getArticles = (req, res, next) => {
+//     const { topic, sort_by, order, limit, p, total_count } = req.query
+
+//     const promises = selectArticles(topic, sort_by, order, limit, p, total_count)
+//     if (total_count) promises.push(selectArticles(topic, sort_by, order))
+
+//     Promise.all(promises)
+//         .then(resolvedPromises => {
+//             const articles = resolvedPromises[0]
+//             if (total_count) const articleCount = resolvedPromises[1]
+//             res.status(200).send{ articles: }
+//         })
+//     selectArticles(topic, sort_by, order, limit, p, total_count).then(articles => {
+//         // if (total_count) articles.total_count = article
+//         res.status(200).send({ articles })
+//     })
+//     .catch(next)
+// }
 
 exports.postArticle = (req, res, next) => {
     const { author, title, body, topic, article_img_url } = req.body

@@ -1,21 +1,24 @@
 const db = require(`${__dirname}/../../db/connection`)
 const format = require("pg-format")
-const { getValidParams, checkQueryIsValid } = require(`${__dirname}/../utils`)
+const { getValidParams } = require(`${__dirname}/../utils`)
 
-exports.selectArticles = (topic = null, sort_by = "created_at", order = "DESC") => {
+exports.selectArticles = (topic = null, sort_by = "created_at", order = "DESC", limit = 10, p = 1, total_count = "false") => {
     const validTopicsPromise = getValidParams('topics', 'slug')
     const validSortBy = ["article_id", "title", "topic", "author", "body", "created_at", "article_img_url"]
     const validOrder = ["ASC", "DESC"]
+    const validTotalCount = ["true", "false"]
     order = order.toUpperCase()
+    const offset = (p - 1) * limit
     
     return Promise.all([validTopicsPromise]).then(([validTopics]) => {
 
         if ((topic && !validTopics.includes(topic))
         || !validSortBy.includes(sort_by)
-        || !validOrder.includes(order)) {
+        || !validOrder.includes(order)
+        || !validTotalCount.includes(total_count)) {
             return Promise.reject({ status: 400, msg: "Bad Request" })
         }
-        
+
         let dbQuery = `SELECT articles.article_id,
                         title,
                         topic,
@@ -27,12 +30,54 @@ exports.selectArticles = (topic = null, sort_by = "created_at", order = "DESC") 
                         LEFT JOIN comments ON articles.article_id = comments.article_id 
                         GROUP BY articles.article_id `
     
+        
         if (topic) dbQuery += `HAVING topic = '${topic}' `
-        dbQuery += `ORDER BY articles.${sort_by} ${order}`
-
+        dbQuery += `ORDER BY articles.${sort_by} ${order} LIMIT ${limit} OFFSET ${offset}`
+        // console.log(dbQuery, "<<<<< dbQuery")
         return db.query(dbQuery).then(({ rows }) => rows)
     })
 }
+
+
+
+
+
+
+
+
+
+// exports.selectArticles = (topic = null, sort_by = "created_at", order = "DESC", limit = 10, p = 1) => {
+//     const validTopicsPromise = getValidParams('topics', 'slug')
+//     const validSortBy = ["article_id", "title", "topic", "author", "body", "created_at", "article_img_url"]
+//     const validOrder = ["ASC", "DESC"]
+//     order = order.toUpperCase()
+//     const offset = (p - 1) * limit
+    
+//     return Promise.all([validTopicsPromise]).then(([validTopics]) => {
+
+//         if ((topic && !validTopics.includes(topic))
+//         || !validSortBy.includes(sort_by)
+//         || !validOrder.includes(order)) {
+//             return Promise.reject({ status: 400, msg: "Bad Request" })
+//         }
+        
+//         let dbQuery = `SELECT articles.article_id,
+//                         title,
+//                         topic,
+//                         articles.author,
+//                         articles.created_at,
+//                         articles.votes,
+//                         COUNT(comments.article_id) AS comment_count 
+//                         FROM articles 
+//                         LEFT JOIN comments ON articles.article_id = comments.article_id 
+//                         GROUP BY articles.article_id `
+    
+//         if (topic) dbQuery += `HAVING topic = '${topic}' `
+//         dbQuery += `ORDER BY articles.${sort_by} ${order} LIMIT ${limit} OFFSET ${offset}`
+//         console.log(dbQuery, "<<<<< dbQuery")
+//         return db.query(dbQuery).then(({ rows }) => rows)
+//     })
+// }
 
 
 exports.insertArticle = (author, title, body, topic, article_img_url) => {
