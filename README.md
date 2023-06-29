@@ -59,6 +59,9 @@ This project creates and seeds a database of articles and user data that can be 
 - GET /api/users
   - serves an array of all users
 
+- GET /api/users/:username
+  - serves an object containing all data for specified user
+
 # Database Schema
 
 - topics: 
