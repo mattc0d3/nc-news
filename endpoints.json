@@ -36,6 +36,23 @@
       ]
     }
   },
+  "POST /api/articles" : {
+    "description": "adds an article linked to a specified user and topic. Other required properties on the request body include title and body, while article_img_url is optional and will be set to default if not provided",
+    "queries": [],
+    "exampleResponse": {
+      "postedArticle": {
+        "article_id": 16,
+        "title": "History of FC Barcelona",
+        "topic": "football",
+        "author": "weegembump",
+        "body": "The history of Futbol Club Barcelona goes from the football club's founding in 1899 and up to current time. FC Barcelona, also known simply as Barcelona and familiarly as Barça, is based in Barcelona, Catalonia, Spain. The team was founded in 1899 by a group of Swiss, English and Spanish footballers led by Joan Gamper. The club played amateur football until 1910 in various regional competitions. In 1910, the club participated in their first of many European competitions, and has since amassed ten UEFA trophies and a sextuple. In 1928, Barcelona co-founded La Liga, the top-tier in Spanish football, along with a string of other clubs. As of 2016, Barcelona has never been relegated from La Liga, a record they share with Athletic Bilbao and arch-rival Real Madrid. The history of Barcelona has often been politically. Though it is a club created and run by foreigners, Barcelona gradually became a club associated with Catalan values. In Spain's transition to autocracy in 1925, Catalonia became increasingly hostile towards the central government in Madrid. The hostility enhanced Barcelona's image as a focal point for Catalonism, and when Francisco Franco banned the use of the Catalan language, the stadium of Barcelona became one of the few places the people could express their dissatisfaction. The Spanish transition to democracy in 1978 has not dampened the club's image of Catalan pride. In the 2000s – a period of sporting success in the club and an increased focus on Catalan players – club officials have openly called for Catalonia to become an independent state.",
+        "created_at": 1596413640000,
+        "votes": 0,
+        "article_img_url":
+          "https://images.pexels.com/photos/102448/pexels-photo-102448.jpeg?w=700&h=700"
+      }
+    }
+  },
   "GET /api/articles/:article_id": {
     "description": "serves an object containing all data from a specified article",
     "queries": [],

@@ -1,4 +1,5 @@
 const db = require(`${__dirname}/../../db/connection`)
+const format = require("pg-format")
 const { getValidParams, checkQueryIsValid } = require(`${__dirname}/../utils`)
 
 exports.selectArticles = (topic = null, sort_by = "created_at", order = "DESC") => {
@@ -31,6 +32,26 @@ exports.selectArticles = (topic = null, sort_by = "created_at", order = "DESC") 
 
         return db.query(dbQuery).then(({ rows }) => rows)
     })
+}
+
+
+exports.insertArticle = (author, title, body, topic, article_img_url) => {
+    const values = [author, title, body, topic]
+    let valuesToInsert = "$1, $2, $3, $4"
+    let columnValues = "author, title, body, topic"
+
+    if (article_img_url) {
+        values.push(article_img_url)
+        valuesToInsert += ", $5"
+        columnValues += ", article_img_url"
+    }
+
+    return db.query(format(`
+        INSERT INTO articles 
+        (${columnValues}) 
+        VALUES (${valuesToInsert}) 
+        RETURNING article_id`), values)
+        .then(({ rows }) => rows[0])
 }
 
 exports.selectArticleById = (article_id) => {

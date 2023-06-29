@@ -122,6 +122,100 @@ describe("GET /api/articles", () => {
     })
 })
 
+describe("POST /api/articles", () => {
+    test("responds with a newly added article object, containing all correct properties", () => {
+        return request(app)
+            .post("/api/articles")
+            .send({
+                author: "butter_bridge",
+                title: "test_title",
+                body: "test_body",
+                topic: "cats",
+                article_img_url: "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+            })
+            .expect(201)
+            .then(({ body }) => {
+                expect(body.postedArticle).toMatchObject({
+                    author: "butter_bridge",
+                    title: "test_title",
+                    body: "test_body",
+                    topic: "cats",
+                    article_img_url: "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+                    article_id: expect.any(Number),
+                    votes: 0,
+                    created_at: expect.any(String),
+                    comment_count: "0"
+                })
+            })
+    })
+    test("endpoint ignores unnecessary properties on request body", () => {
+        return request(app)
+            .post("/api/articles")
+            .send({
+                author: "icellusedkars",
+                title: "test_title",
+                body: "test_body",
+                topic: "paper",
+                article_img_url: "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+                extra: "extra_data"
+            })
+            .expect(201)
+    })
+    test("sets article_img_url to default value if not provided in request", () => {
+        return request(app)
+            .post("/api/articles")
+            .send({
+                author: "lurker",
+                title: "test_title",
+                body: "test_body",
+                topic: "mitch"
+            })
+            .expect(201)
+            .then(({ body }) => {
+            expect(body.postedArticle.article_img_url).toBe('https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700')
+            })
+    })
+    test("returns 404 not found error when username does not exist", () => {
+        return request(app)
+            .post("/api/articles")
+            .send({
+                author: "test_user",
+                title: "test_title",
+                body: "test_body",
+                topic: "cats",
+                article_img_url: "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+            })
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Not Found")
+            })
+    })
+    test("returns 404 not found error when topic does not exists", () => {
+        return request(app)
+            .post("/api/articles")
+            .send({
+                author: "butter_bridge",
+                title: "test_title",
+                body: "test_body",
+                topic: "test_topic",
+                article_img_url: "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+            })
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Not Found")
+            })
+    })
+    test("returns 400 bad request error when post info is incomplete", () => {
+        return request(app)
+            .post("/api/articles")
+            .send({ author: "rogersop", topic: "paper" })
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Bad Request")
+            })
+    })
+})
+
 describe("GET /api/articles/:article_id", () => {
     test("article object contains all correct properties and has specified ID", () => {
         return request(app)
@@ -236,7 +330,7 @@ describe("POST /api/articles/:article_id/comments", () => {
         .send({ username: "icellusedkars", extraData1: "test", body: "test_body", extraData2: "test"})
         .expect(201)
     })
-    test("returns 404 bad request error when username does not exist", () => {
+    test("returns 404 not found error when username does not exist", () => {
         return request(app)
             .post("/api/articles/7/comments")
             .send({ username: "test_user", body: "test_body"})
