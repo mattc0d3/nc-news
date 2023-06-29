@@ -1,4 +1,4 @@
-const { selectArticles, selectArticleById, selectCommentsByArticleId, insertCommentByArticleId, updateArticleById } = require(`${__dirname}/../models/articles.models`)
+const { selectArticles, insertArticle, selectArticleById, selectCommentsByArticleId, insertCommentByArticleId, updateArticleById } = require(`${__dirname}/../models/articles.models`)
 const { checkCategoryExists } = require(`${__dirname}/../utils`)
 
 exports.getArticles = (req, res, next) => {
@@ -7,6 +7,25 @@ exports.getArticles = (req, res, next) => {
         res.status(200).send({ articles })
     })
     .catch(next)
+}
+
+exports.postArticle = (req, res, next) => {
+    const { author, title, body, topic, article_img_url } = req.body
+    promises = [
+        checkCategoryExists('users', 'username', author),
+        checkCategoryExists('topics', 'slug', topic),
+        insertArticle(author, title, body, topic, article_img_url)
+    ]
+
+    Promise.all(promises)
+        .then(resolvedPromises => {
+            const { article_id } = resolvedPromises[2]
+            return selectArticleById(article_id)
+        })
+        .then(postedArticle => {
+            res.status(201).send({ postedArticle })
+        })
+        .catch(next)
 }
 
 exports.getArticleById = (req, res, next) => {
