@@ -33,7 +33,6 @@ exports.selectArticles = (topic = null, sort_by = "created_at", order = "DESC", 
         
         if (topic) dbQuery += `HAVING topic = '${topic}' `
         dbQuery += `ORDER BY articles.${sort_by} ${order} LIMIT ${limit} OFFSET ${offset}`
-        // console.log(dbQuery, "<<<<< dbQuery")
         return db.query(dbQuery).then(({ rows }) => rows)
     })
 }
