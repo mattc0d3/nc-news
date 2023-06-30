@@ -9,13 +9,13 @@ exports.selectArticles = (topic = null, sort_by = "created_at", order = "DESC", 
     const validTotalCount = ["true", "false"]
     order = order.toUpperCase()
     const offset = (p - 1) * limit
-    
+
     return Promise.all([validTopicsPromise]).then(([validTopics]) => {
 
         if ((topic && !validTopics.includes(topic))
-        || !validSortBy.includes(sort_by)
-        || !validOrder.includes(order)
-        || !validTotalCount.includes(total_count)) {
+            || !validSortBy.includes(sort_by)
+            || !validOrder.includes(order)
+            || !validTotalCount.includes(total_count)) {
             return Promise.reject({ status: 400, msg: "Bad Request" })
         }
 
@@ -29,8 +29,8 @@ exports.selectArticles = (topic = null, sort_by = "created_at", order = "DESC", 
                         FROM articles 
                         LEFT JOIN comments ON articles.article_id = comments.article_id 
                         GROUP BY articles.article_id `
-    
-        
+
+
         if (topic) dbQuery += `HAVING topic = '${topic}' `
         dbQuery += `ORDER BY articles.${sort_by} ${order} LIMIT ${limit} OFFSET ${offset}`
         return db.query(dbQuery).then(({ rows }) => rows)
@@ -98,4 +98,10 @@ exports.updateArticleById = (article_id, newVotes) => {
         WHERE article_id = $2
         RETURNING * `, [newVotes, article_id])
         .then(({ rows }) => rows[0])
+}
+
+exports.deleteArticleById = (article_id) => {
+    return db.query(`
+        DELETE FROM articles
+        WHERE article_id = $1`, [article_id])
 }

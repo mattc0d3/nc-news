@@ -1,5 +1,17 @@
-const { deleteCommentById, updateCommentById } = require(`${__dirname}/../models/comments.models`)
+const { selectCommentById, deleteCommentById, updateCommentById } = require(`${__dirname}/../models/comments.models`)
 const { checkCategoryExists } = require(`${__dirname}/../utils`)
+
+exports.getCommentById = (req, res, next) => {
+    const { comment_id } = req.params
+    const promises = [checkCategoryExists('comments', 'comment_id', comment_id), selectCommentById(comment_id)]
+
+    Promise.all(promises)
+        .then(resolvedPromises => {
+            const comment = resolvedPromises[1]
+            res.status(200).send({ comment })
+        })
+        .catch(next)
+}
 
 exports.destroyCommentById = (req, res, next) => {
     const { comment_id } = req.params

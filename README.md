@@ -56,8 +56,14 @@ This project creates and seeds a database of articles and user data that can be 
 - PATCH /api/articles/article_id
   - updates specified article and named properties with new values
 
+- DELETE /api/articles/:article_id
+  - removes article and respective comments according to specified article ID
+
 - POST /api/articles/:article_id/comments
   - adds a comment linked to a specified article ID and username
+
+- GET /api/comments/:comment_id
+  - serves an object containing all data from a specified comment
 
 - PATCH /api/comments/:comment_id
   - updates specified comment and named properties with new values

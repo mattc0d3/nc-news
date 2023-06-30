@@ -425,6 +425,40 @@ describe("PATCH /api/articles/:article_id", () => {
     })
 })
 
+describe("GET /api/comments/:comment_id", () => {
+    test("comment object contains all correct properties and has specified ID", () => {
+        return request(app)
+            .get("/api/comments/9")
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.comment).toMatchObject({
+                    comment_id: 9,
+                    author: expect.any(String),
+                    body: expect.any(String),
+                    created_at: expect.any(String),
+                    votes: expect.any(Number),
+                    article_id: expect.any(Number)
+                })
+            })
+    })
+    test("responds with 404 not found error when id does not exist", () => {
+        return request(app)
+            .get("/api/comments/999")
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Not Found")
+            })
+    })
+    test("responds with 400 status and bad request error when id not found", () => {
+        return request(app)
+            .get("/api/comments/eight")
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Bad Request")
+            })
+    })
+})
+
 describe("PATCH /api/comments/:comment_id", () => {
     test("responds with updated comment object containing updated vote count", () => {
         return request(app)
@@ -808,5 +842,34 @@ describe("POST /api/topics", () => {
             .then(({ body }) => {
                 expect(body.msg).toBe("Bad Request")
             })
+    })
+})
+
+describe("DELETE /api/articles/:article_id", () => {
+    test("responds with 204 status and no content on response body when delete successful", () => {
+        return request(app)
+            .delete("/api/articles/4")
+            .expect(204)
+    })
+    test("deleting an article also deletes its respective comments", () => {
+        return request(app)
+            .delete("/api/articles/9")
+            .then(() => {
+                return request(app)
+                    .get("/api/comments/17")
+                    .expect(404)
+            })
+    })
+    test("returns 404 error when comment ID not found", () => {
+        return request(app)
+            .delete("/api/articles/100")
+            .expect(404)
+            .then(({ body }) => expect(body.msg).toEqual("Not Found"))
+    })
+    test("returns 400 error when request contains bad ID data", () => {
+        return request(app)
+            .delete("/api/articles/three")
+            .expect(400)
+            .then(({ body }) => expect(body.msg).toEqual("Bad Request"))
     })
 })

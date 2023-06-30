@@ -106,6 +106,11 @@
       "article_img_url": "https://images.pexels.com/photos/6424586/pexels-photo-6424586.jpeg?w=700&h=700"
     }
   },
+  "DELETE /api/articles/:article_id": {
+    "description": "removes article and respective comments according to specified article ID, no data returned",
+    "queries": [],
+    "exampleResponse": {}
+  },
   "POST /api/articles/:article_id/comments": {
     "description": "adds a comment linked to a specified article ID and username",
     "queries": [],
@@ -117,6 +122,17 @@
       "votes": 0,
       "created_at": "2023-06-27T10:55:04.574Z"
     }
+  },
+  "GET /api/comments/:comment_id": {
+    "description": "serves an object containing all data from a specified comment",
+    "queries": [],
+    "exampleResponse": {
+        "body": "Dicta aut quo unde cupiditate dolorum. Voluptas mollitia exercitationem vel porro dolor. Ea autem est pariatur.",
+        "votes": 6,
+        "author": "jessjelly",
+        "article_id": 5,
+        "created_at": 1597515060000
+      }
   },
   "PATCH /api/comments/:comment_id": {
     "description": "updates specified comment and named properties with new values. Request body must include inc_votes property to update vote count",

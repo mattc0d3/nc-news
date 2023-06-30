@@ -1,4 +1,4 @@
-const { selectArticles, insertArticle, selectArticleById, selectCommentsByArticleId, insertCommentByArticleId, updateArticleById } = require(`${__dirname}/../models/articles.models`)
+const { selectArticles, insertArticle, selectArticleById, selectCommentsByArticleId, insertCommentByArticleId, updateArticleById, deleteArticleById } = require(`${__dirname}/../models/articles.models`)
 const { checkCategoryExists, checkPageQueryValid } = require(`${__dirname}/../utils`)
 
 exports.getArticles = (req, res, next) => {
@@ -58,7 +58,7 @@ exports.getCommentsByArticleId = (req, res, next) => {
     
     Promise.all(promises)
         .then(resolvedPromises => {
-            comments = resolvedPromises[1]
+            const comments = resolvedPromises[1]
             if ((p - 1) > (comments.length / limit || 10)) res.status(404).send({ msg: "Not Found"})
             res.status(200).send({ comments })
         })
@@ -92,5 +92,13 @@ exports.patchArticleById = (req, res, next) => {
             article = resolvedPromises[1]
             res.status(201).send({ article })
         })
+        .catch(next)
+}
+
+exports.destroyArticleById = (req, res, next) => {
+    const { article_id } = req.params
+    const promises = [checkCategoryExists('articles', 'article_id', article_id), deleteArticleById(article_id)]
+    Promise.all(promises)
+        .then(resolvedPromises => res.send(204))
         .catch(next)
 }
