@@ -74,16 +74,13 @@ exports.selectArticleById = (article_id) => {
 }
 
 exports.selectCommentsByArticleId = (article_id, limit = 10, p = 1) => {
-    console.log(limit, "<<<<<<<<<< limit in model")
     const offset = (p - 1) * limit
     return db.query(`
         SELECT * FROM comments
         WHERE article_id = $1
         ORDER BY created_at DESC
         LIMIT $2 OFFSET $3`, [article_id, limit, offset])
-        .then(({ rows }) => {
-            console.log(rows, "<<<<<<< rows in models")
-            return rows})
+        .then(({ rows }) => rows)
 }
 
 exports.insertCommentByArticleId = (article_id, username, body) => {

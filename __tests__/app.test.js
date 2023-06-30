@@ -749,7 +749,6 @@ describe("GET /api/articles/:article_id/comments (pagination queries)", () => {
             .get("/api/articles/1/comments?p=200")
             .expect(404)
             .then(({ body }) => {
-                console.log(body, "<<<<<<<<< body in test")
                 expect(body.msg).toBe("Not Found")
             })
     })
