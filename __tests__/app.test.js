@@ -624,7 +624,7 @@ describe("GET /api/articles (queries)", () => {
 })
 
 // REFACTOR
-describe.only("GET /api/articles (more queries", () => {
+describe("GET /api/articles (more queries", () => {
     test("response limits the number of array items to 10 by default", () => {
         return request(app)
             .get("/api/articles")

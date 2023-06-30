@@ -15,12 +15,15 @@
     }
   },
   "GET /api/articles": {
-    "description": "serves an array of all topics",
+    "description": "serves an array of all topics, with query options to filter by author and topic. Queries also provide options to sort_by different categories of data in either ascending or descending orders, and to limit responses to a certain number per page, to jump to a specific page, and to show the total count of pages. Default settings order response by date in descending order, with a limit of 10 per page",
     "queries": [
       "author",
       "topic",
       "sort_by",
-      "order"
+      "order",
+      "limit",
+      "p",
+      "total_count"
     ],
     "exampleResponse": {
       "articles": [
