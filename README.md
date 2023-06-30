@@ -38,6 +38,9 @@ This project creates and seeds a database of articles and user data that can be 
 - GET /api/topics
   - serves an array of all topics
 
+- POST /api/topics
+  - adds a new topics with slug and description properties
+
 - GET /api/articles
   - serves an array of all topics, accepting queries for author, topic, sort_by and order
 

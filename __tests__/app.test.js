@@ -761,3 +761,52 @@ describe("GET /api/articles/:article_id/comments (pagination queries)", () => {
             })
     })
 })
+
+describe("POST /api/topics", () => {
+    test("returns object containing the posted topic", () => {
+        return request(app)
+            .post("/api/topics")
+            .send({
+                slug: "test_slug",
+                description: "test_description"
+            })
+            .expect(201)
+            .then(({ body }) => {
+                expect(body.postedTopic).toMatchObject({
+                    slug: "test_slug",
+                    description: "test_description"
+                })
+            })
+    })
+    test("endpoint ignores unnecessary properties on request body", () => {
+        return request(app)
+            .post("/api/topics")
+            .send({
+                slug: "test_slug",
+                description: "test_description",
+                extra: "extra_data"
+            })
+            .expect(201)
+    })
+    test("returns posted topic with description set to null if only slug provided", () => {
+        return request(app)
+            .post("/api/topics")
+            .send({ slug: "test_slug" })
+            .expect(201)
+            .then(({ body }) => {
+                expect(body.postedTopic).toMatchObject({
+                    slug: "test_slug",
+                    description: null
+                })
+            })
+    })
+    test("returns 400 bad request error when post info is missing slug property", () => {
+        return request(app)
+            .post("/api/topics")
+            .send({ description: "test_description" })
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Bad Request")
+            })
+    })
+})
