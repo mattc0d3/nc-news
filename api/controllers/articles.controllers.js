@@ -2,10 +2,21 @@ const { selectArticles, insertArticle, selectArticleById, selectCommentsByArticl
 const { checkCategoryExists } = require(`${__dirname}/../utils`)
 
 exports.getArticles = (req, res, next) => {
-    const { topic, sort_by, order } = req.query
-    selectArticles(topic, sort_by, order).then(articles => {
-        res.status(200).send({ articles })
-    })
+    const { topic, sort_by, order, limit, p, total_count } = req.query
+
+    const promises = [selectArticles(topic, sort_by, order, limit, p, total_count), selectArticles(topic, sort_by, order, null)]
+
+    Promise.all(promises)
+        .then(resolvedPromises => {
+            if (p > (resolvedPromises[1].length / limit || 10)) res.status(404).send({ msg: "Not Found"})
+            
+            const articles = {}
+            articles.articles = resolvedPromises[0]
+            
+            if (total_count === "true") articles.totalArticles = resolvedPromises[1].length
+            
+            res.status(200).send(articles)
+        })
     .catch(next)
 }
 

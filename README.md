@@ -1,6 +1,6 @@
 # Northcoders News API
 
-Link to hosted database: LINK
+Link to hosted database: https://nc-news-api-45fk.onrender.com/
 
 This project creates and seeds a database of articles and user data that can be accessed programmatically by a front-end news forum style service. Using a Javascript API, clients can access several endpoints to request, post, update and delete data.
 

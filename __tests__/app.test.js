@@ -85,7 +85,7 @@ describe("GET /api/articles", () => {
             .expect(200)
             .then(({ body }) => {
                 expect(body.articles).toBeInstanceOf(Array)
-                expect(body.articles.length).toBe(13)
+                expect(body.articles.length > 0).toBe(true)
                 body.articles.forEach(article => {
                     expect(article).toMatchObject({
                         article_id: expect.any(Number),
@@ -172,7 +172,7 @@ describe("POST /api/articles", () => {
             })
             .expect(201)
             .then(({ body }) => {
-            expect(body.postedArticle.article_img_url).toBe('https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700')
+                expect(body.postedArticle.article_img_url).toBe('https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700')
             })
     })
     test("returns 404 not found error when username does not exist", () => {
@@ -311,7 +311,7 @@ describe("POST /api/articles/:article_id/comments", () => {
     test("returns object containing the posted comment", () => {
         return request(app)
             .post("/api/articles/2/comments")
-            .send({ username: "lurker", body: "test_body"})
+            .send({ username: "lurker", body: "test_body" })
             .expect(201)
             .then(({ body }) => {
                 expect(body.comment).toMatchObject({
@@ -326,14 +326,14 @@ describe("POST /api/articles/:article_id/comments", () => {
     })
     test("endpoint ignores unnecessary properties on request body", () => {
         return request(app)
-        .post("/api/articles/12/comments")
-        .send({ username: "icellusedkars", extraData1: "test", body: "test_body", extraData2: "test"})
-        .expect(201)
+            .post("/api/articles/12/comments")
+            .send({ username: "icellusedkars", extraData1: "test", body: "test_body", extraData2: "test" })
+            .expect(201)
     })
     test("returns 404 not found error when username does not exist", () => {
         return request(app)
             .post("/api/articles/7/comments")
-            .send({ username: "test_user", body: "test_body"})
+            .send({ username: "test_user", body: "test_body" })
             .expect(404)
             .then(({ body }) => {
                 expect(body.msg).toBe("Not Found")
@@ -342,7 +342,7 @@ describe("POST /api/articles/:article_id/comments", () => {
     test("returns 404 not found error when article_id does not exists", () => {
         return request(app)
             .post("/api/articles/0/comments")
-            .send({ username: "lurker", body: "test_body"})
+            .send({ username: "lurker", body: "test_body" })
             .expect(404)
             .then(({ body }) => {
                 expect(body.msg).toBe("Not Found")
@@ -350,12 +350,12 @@ describe("POST /api/articles/:article_id/comments", () => {
     })
     test("returns 400 bad request error when ID parameter contains bad data", () => {
         return request(app)
-        .post("/api/articles/notanid/comments")
-        .send({ username: "butter_bridge", body: "test_body" })
-        .expect(400)
-        .then(({ body }) => {
-            expect(body.msg).toBe("Bad Request")
-        })
+            .post("/api/articles/notanid/comments")
+            .send({ username: "butter_bridge", body: "test_body" })
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Bad Request")
+            })
     })
     test("returns 400 bad request error when post info is incomplete", () => {
         return request(app)
@@ -481,7 +481,7 @@ describe("PATCH /api/comments/:comment_id", () => {
             })
     })
 })
-    
+
 describe("DELETE /api/comments/:comment_id", () => {
     test("responds with 204 status and no content on response body", () => {
         return request(app)
@@ -531,8 +531,8 @@ describe("GET /api/users/:username", () => {
                     username: 'lurker',
                     name: 'do_nothing',
                     avatar_url:
-                      'https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png'
-                  })
+                        'https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png'
+                })
             })
     })
     test("responds with 404 status and not found error when username does not exist", () => {
@@ -587,7 +587,7 @@ describe("GET /api/articles (queries)", () => {
             .get("/api/articles?topics=cats&order=asc")
             .expect(200)
             .then(({ body }) => {
-                expect(body.articles.length).toBe(13)
+                expect(body.articles.length > 0).toBe(true)
                 expect(body.articles).toBeSortedBy("created_at")
             })
     })
@@ -621,4 +621,86 @@ describe("GET /api/articles (queries)", () => {
             })
     })
 
+})
+
+// REFACTOR
+describe("GET /api/articles (more queries", () => {
+    test("response limits the number of array items to 10 by default", () => {
+        return request(app)
+            .get("/api/articles")
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.articles).toHaveLength(10)
+            })
+    })
+    test("response limits the number of array items by order query", () => {
+        return request(app)
+            .get("/api/articles?limit=5")
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.articles).toHaveLength(5)
+            })
+    })
+    test("response array begins at page specified by p query", () => {
+        return request(app)
+            .get("/api/articles?sort_by=article_id&order=asc&limit=5&p=2")
+            .expect(200)
+            .then(({ body }) => {
+                // console.log(body.articles)
+                expect(body.articles).toHaveLength(5)
+                body.articles.forEach(article => {
+                    expect(article.article_id > 5).toBe(true)
+                    expect(article.article_id <= 10).toBe(true)
+                })
+            })
+    })
+    test("response includes total number of articles that meet filter requirements when total_count is true, regardless of limits", () => {
+        return request(app)
+            .get("/api/articles?topic=mitch&limit=5&total_count=true")
+            .expect(200)
+            .then(({ body }) => {
+                // console.log(body, "<<<<<<<<<< body in total_count test")
+                expect(body.totalArticles).toBe(12)
+            })
+    })
+    test("responds with all items if limit specified is larger than the length of array", () => {
+        return request(app)
+            .get("/api/articles?limit=200")
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.articles).toHaveLength(13)
+            })
+    })
+    test("returns 400 bad request if limit includes bad data", () => {
+        return request(app)
+            .get("/api/articles?limit=four")
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Bad Request")
+            })
+    })
+    test("returns 404 not found error if page query not in range of pages in response", () => {
+        return request(app)
+            .get("/api/articles?p=200")
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Not Found")
+            })
+    })
+    test("returns 400 bad request error if page query includes bad data", () => {
+        return request(app)
+            .get("/api/articles?p=two")
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Bad Request")
+            })
+    })
+    test("returns 400 bad request error if total_count query contains bad data", () => {
+        return request(app)
+        .get("/api/articles?total_count=yes")
+        .expect(400)
+        .then(({ body }) => {
+            expect(body.msg).toBe("Bad Request")
+        })
+    })
 })
