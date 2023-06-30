@@ -1,5 +1,5 @@
 const { selectArticles, insertArticle, selectArticleById, selectCommentsByArticleId, insertCommentByArticleId, updateArticleById } = require(`${__dirname}/../models/articles.models`)
-const { checkCategoryExists } = require(`${__dirname}/../utils`)
+const { checkCategoryExists, checkPageQueryValid } = require(`${__dirname}/../utils`)
 
 exports.getArticles = (req, res, next) => {
     const { topic, sort_by, order, limit, p, total_count } = req.query
@@ -8,7 +8,7 @@ exports.getArticles = (req, res, next) => {
 
     Promise.all(promises)
         .then(resolvedPromises => {
-            if (p > (resolvedPromises[1].length / limit || 10)) res.status(404).send({ msg: "Not Found"})
+            if ((p - 1) > (resolvedPromises[1].length / limit || 10)) res.status(404).send({ msg: "Not Found"})
             
             const articles = {}
             articles.articles = resolvedPromises[0]
@@ -53,11 +53,13 @@ exports.getArticleById = (req, res, next) => {
 
 exports.getCommentsByArticleId = (req, res, next) => {
     const { article_id } = req.params
-    const promises = [checkCategoryExists('articles', 'article_id', article_id), selectCommentsByArticleId(article_id)]
+    const { limit, p } = req.query
+    const promises = [checkCategoryExists('articles', 'article_id', article_id), selectCommentsByArticleId(article_id, limit, p)]
     
     Promise.all(promises)
         .then(resolvedPromises => {
             comments = resolvedPromises[1]
+            if ((p - 1) > (comments.length / limit || 10)) res.status(404).send({ msg: "Not Found"})
             res.status(200).send({ comments })
         })
         .catch(next)

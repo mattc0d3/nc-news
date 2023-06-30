@@ -646,7 +646,6 @@ describe("GET /api/articles (more queries", () => {
             .get("/api/articles?sort_by=article_id&order=asc&limit=5&p=2")
             .expect(200)
             .then(({ body }) => {
-                // console.log(body.articles)
                 expect(body.articles).toHaveLength(5)
                 body.articles.forEach(article => {
                     expect(article.article_id > 5).toBe(true)
@@ -659,7 +658,6 @@ describe("GET /api/articles (more queries", () => {
             .get("/api/articles?topic=mitch&limit=5&total_count=true")
             .expect(200)
             .then(({ body }) => {
-                // console.log(body, "<<<<<<<<<< body in total_count test")
                 expect(body.totalArticles).toBe(12)
             })
     })
@@ -702,5 +700,65 @@ describe("GET /api/articles (more queries", () => {
         .then(({ body }) => {
             expect(body.msg).toBe("Bad Request")
         })
+    })
+})
+
+describe("GET /api/articles/:article_id/comments (pagination queries)", () => {
+    test("response limits number of responses to 10 by default", () => {
+        return request(app)
+            .get("/api/articles/1/comments")
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.comments).toHaveLength(10)
+            })
+    })
+    test("response limits responses by query", () => {
+        return request(app)
+            .get("/api/articles/1/comments?limit=8")
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.comments).toHaveLength(8)
+            })
+    })
+    test("response array begins at page specified by p query", () => {
+        return request(app)
+            .get("/api/articles/1/comments?p=2")
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.comments).toHaveLength(1)
+            })
+    })
+    test("responds with all items if limit specified is larger than the length of array", () => {
+        return request(app)
+            .get("/api/articles/3/comments?limit=6")
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.comments).toHaveLength(2)
+            })
+    })
+    test("returns 400 bad request if limit includes bad data", () => {
+        return request(app)
+            .get("/api/articles/9/comments?limit=four")
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Bad Request")
+            })
+    })
+    test("returns 404 not found error if page query not in range of pages in response", () => {
+        return request(app)
+            .get("/api/articles/1/comments?p=200")
+            .expect(404)
+            .then(({ body }) => {
+                console.log(body, "<<<<<<<<< body in test")
+                expect(body.msg).toBe("Not Found")
+            })
+    })
+    test("returns 400 bad request error if page query includes bad data", () => {
+        return request(app)
+            .get("/api/articles/5/comments?p=two")
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe("Bad Request")
+            })
     })
 })

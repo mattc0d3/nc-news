@@ -72,8 +72,11 @@
     }
   },
   "GET /api/articles/:article_id/comments": {
-    "description": "serves an array of comments matching specified article ID",
-    "queries": [],
+    "description": "serves an array of comments matching specified article ID. Responses can be set to a specified limit and page, defaulting to a limit of 10",
+    "queries": [
+      "limit", 
+      "p"
+    ],
     "exampleResponse": {
       "comment_id": 11,
       "body": "Ambidextrous marsupial",
