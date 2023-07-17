@@ -151,7 +151,8 @@ describe("/articles", () => {
                                 topic: expect.any(String),
                                 author: expect.any(String),
                                 created_at: expect.any(String),
-                                votes: expect.any(Number)
+                                votes: expect.any(Number),
+                                article_img_url: expect.any(String)
                             })
                             expect(article.hasOwnProperty("body")).toBe(false)
                         })
