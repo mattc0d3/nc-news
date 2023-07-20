@@ -4,7 +4,7 @@ const { getValidParams } = require(`${__dirname}/../utils`)
 
 exports.selectArticles = (topic = null, sort_by = "created_at", order = "DESC", limit = 10, p = 1, total_count = "false") => {
     const validTopicsPromise = getValidParams('topics', 'slug')
-    const validSortBy = ["article_id", "title", "topic", "author", "body", "created_at", "article_img_url"]
+    const validSortBy = ["article_id", "title", "topic", "author", "body", "created_at", "article_img_url", "votes", "comment_count"]
     const validOrder = ["ASC", "DESC"]
     const validTotalCount = ["true", "false"]
     order = order.toUpperCase()
