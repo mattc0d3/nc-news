@@ -175,5 +175,23 @@
         "avatar_url": "https://vignette.wikia.nocookie.net/mrmen/images/7/78/Mr-Grumpy-3A.PNG/revision/latest?cb=20170707233013"
       }
     }
+  },
+  "GET /api/users/:username/comments": {
+    "description": "serves an array of all comments posted by a specified user, and info on which article they relate to",
+    "queries": [],
+    "exampleResponse": {
+      "comments": [
+        {
+          "body": "git push origin master",
+          "votes": 0,
+          "author": "icellusedkars",
+          "created_at": "2020-06-20T07:24:00.000Z",
+          "article_id": 3,
+          "comment_id": 10,
+          "article_author": "icellusedkars",
+          "article_title": "Eight pug gifs that remind me of mitch"
+        }
+      ]
+    }
   }
 }

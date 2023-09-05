@@ -77,6 +77,9 @@ This project creates and seeds a database of articles and user data that can be 
 - GET /api/users/:username
   - serves an object containing all data for specified user
 
+- GET /api/users/:username/comments
+  - serves an array of all comments posted by a specified user
+
 # Database Schema
 
 - topics: 
