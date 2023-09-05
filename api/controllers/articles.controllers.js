@@ -1,10 +1,11 @@
-const { selectArticles, insertArticle, selectArticleById, selectCommentsByArticleId, insertCommentByArticleId, updateArticleById, deleteArticleById } = require(`${__dirname}/../models/articles.models`)
+const { selectArticles, insertArticle, selectArticleById, selectCommentsByArticleId, insertCommentByArticleId, updateArticleById, deleteArticleById, selectArticlesByAuthor } = require(`${__dirname}/../models/articles.models`)
 const { checkCategoryExists, checkPageQueryValid } = require(`${__dirname}/../utils`)
 
 exports.getArticles = (req, res, next) => {
-    const { topic, sort_by, order, limit, p, total_count } = req.query
+    const { topic, author, sort_by, order, limit, p, total_count } = req.query
 
-    const promises = [selectArticles(topic, sort_by, order, limit, p, total_count), selectArticles(topic, sort_by, order, null)]
+    const promises = [selectArticles(topic, author, sort_by, order, limit, p, total_count), selectArticles(topic, author, sort_by, order, null)]
+    if (author) promises.push(checkCategoryExists("users", "username", author))
 
     Promise.all(promises)
         .then(resolvedPromises => {
@@ -100,5 +101,16 @@ exports.destroyArticleById = (req, res, next) => {
     const promises = [checkCategoryExists('articles', 'article_id', article_id), deleteArticleById(article_id)]
     Promise.all(promises)
         .then(resolvedPromises => res.send(204))
+        .catch(next)
+}
+
+exports.getArticlesByAuthor = (req, res, next) => {
+    const { author } = req.params
+    const promises = [checkCategoryExists('users', 'username', author), selectArticlesByAuthor(author)]
+    Promise.all(promises)
+        .then(resolvedPromises => {
+            const articles = resolvedPromises[1]
+            res.status(200).send({ articles })
+        })
         .catch(next)
 }

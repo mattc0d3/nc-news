@@ -1,6 +1,6 @@
 const { checkCategoryExists } = require("../utils")
 
-const { selectUsers, selectUserByUsername } = require(`${__dirname}/../models/users.models`)
+const { selectUsers, selectUserByUsername, selectCommentsByUsername } = require(`${__dirname}/../models/users.models`)
 
 exports.getUsers = (req, res, next) => {
     selectUsers().then(users => {
@@ -15,8 +15,20 @@ exports.getUserByUsername = (req, res, next) => {
     
     Promise.all(promises)
         .then(resolvedPromises => {
-            user = resolvedPromises[1]
+            const user = resolvedPromises[1]
             res.status(200).send({ user })
+    })
+    .catch(next)
+}
+
+exports.getCommentsByUsername = (req, res, next) => {
+    const { username } = req.params
+    const promises = [checkCategoryExists('users', 'username', username), selectCommentsByUsername(username)]
+
+    Promise.all(promises)
+        .then(resolvedPromises => {
+            const comments = resolvedPromises[1]
+            res.status(200).send({ comments })
     })
     .catch(next)
 }

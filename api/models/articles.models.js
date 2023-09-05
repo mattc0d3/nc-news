@@ -2,7 +2,7 @@ const db = require(`${__dirname}/../../db/connection`)
 const format = require("pg-format")
 const { getValidParams } = require(`${__dirname}/../utils`)
 
-exports.selectArticles = (topic = null, sort_by = "created_at", order = "DESC", limit = 10, p = 1, total_count = "false") => {
+exports.selectArticles = (topic = null, author = null, sort_by = "created_at", order = "DESC", limit = 10, p = 1, total_count = "false") => {
     const validTopicsPromise = getValidParams('topics', 'slug')
     const validSortBy = ["article_id", "title", "topic", "author", "body", "created_at", "article_img_url", "votes", "comment_count"]
     const validOrder = ["ASC", "DESC"]
@@ -33,6 +33,8 @@ exports.selectArticles = (topic = null, sort_by = "created_at", order = "DESC", 
 
 
         if (topic) dbQuery += `HAVING topic = '${topic}' `
+        if (topic && author) dbQuery += `AND `
+        if (author) dbQuery += `HAVING articles.author = '${author}' `
         dbQuery += `ORDER BY ${sort_by} ${order} LIMIT ${limit} OFFSET ${offset}`
         return db.query(dbQuery).then(({ rows }) => rows)
     })
@@ -105,4 +107,19 @@ exports.deleteArticleById = (article_id) => {
     return db.query(`
         DELETE FROM articles
         WHERE article_id = $1`, [article_id])
+}
+
+exports.selectArticlesByAuthor = (author) => {
+    return db.query(`SELECT articles.article_id, 
+    title,
+    topic,
+    articles.author, 
+    articles.created_at, 
+    articles.votes, 
+    article_img_url, 
+    articles.body 
+    FROM articles 
+    LEFT JOIN comments ON articles.article_id = comments.article_id 
+    WHERE articles.author = $1`, [author])
+        .then(({ rows }) => rows)
 }

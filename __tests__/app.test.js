@@ -230,6 +230,16 @@ describe("/articles", () => {
                             body.articles.forEach(article => expect(article.topic).toBe("cats"))
                         })
                 })
+                test("response filters articles by author when query included in request", () => {
+                    return request(app)
+                        .get("/api/articles?author=rogersop")
+                        .expect(200)
+                        .then(({ body }) => {
+                            expect(body.articles).toBeInstanceOf(Array)
+                            expect(body.articles.length > 0).toBe(true)
+                            body.articles.forEach(article => expect(article.author).toBe("rogersop"))
+                        })
+                })
                 test("response sorts articles by column specified in query", () => {
                     return request(app)
                         .get("/api/articles?sort_by=author")
@@ -297,87 +307,87 @@ describe("/articles", () => {
                     })
                 })
 
-        })
+            })
             describe("GET /api/articles (limit, p and total_count queries)", () => {
-            test("response limits the number of array items to 10 by default", () => {
-                return request(app)
-                    .get("/api/articles")
-                    .expect(200)
-                    .then(({ body }) => {
-                        expect(body.articles).toHaveLength(10)
-                    })
-            })
-            test("response limits the number of array items by order query", () => {
-                return request(app)
-                    .get("/api/articles?limit=5")
-                    .expect(200)
-                    .then(({ body }) => {
-                        expect(body.articles).toHaveLength(5)
-                    })
-            })
-            test("response array begins at page specified by p query", () => {
-                return request(app)
-                    .get("/api/articles?sort_by=article_id&order=asc&limit=5&p=2")
-                    .expect(200)
-                    .then(({ body }) => {
-                        expect(body.articles).toHaveLength(5)
-                        body.articles.forEach(article => {
-                            expect(article.article_id > 5).toBe(true)
-                            expect(article.article_id <= 10).toBe(true)
-                        })
-                    })
-            })
-            test("response includes total number of articles that meet filter requirements when total_count is true, regardless of limits", () => {
-                return request(app)
-                    .get("/api/articles?topic=mitch&limit=5&total_count=true")
-                    .expect(200)
-                    .then(({ body }) => {
-                        expect(body.totalArticles).toBe(12)
-                    })
-            })
-            test("responds with all items if limit specified is larger than the length of array", () => {
-                return request(app)
-                    .get("/api/articles?limit=200")
-                    .expect(200)
-                    .then(({ body }) => {
-                        expect(body.articles).toHaveLength(13)
-                    })
-            })
-            describe("error handling", () => {
-                test("returns 400 bad request if limit includes bad data", () => {
+                test("response limits the number of array items to 10 by default", () => {
                     return request(app)
-                        .get("/api/articles?limit=four")
-                        .expect(400)
+                        .get("/api/articles")
+                        .expect(200)
                         .then(({ body }) => {
-                            expect(body.msg).toBe("Bad Request")
+                            expect(body.articles).toHaveLength(10)
                         })
                 })
-                test("returns 404 not found error if page query not in range of pages in response", () => {
+                test("response limits the number of array items by order query", () => {
                     return request(app)
-                        .get("/api/articles?p=200")
-                        .expect(404)
+                        .get("/api/articles?limit=5")
+                        .expect(200)
                         .then(({ body }) => {
-                            expect(body.msg).toBe("Not Found")
+                            expect(body.articles).toHaveLength(5)
                         })
                 })
-                test("returns 400 bad request error if page query includes bad data", () => {
+                test("response array begins at page specified by p query", () => {
                     return request(app)
-                        .get("/api/articles?p=two")
-                        .expect(400)
+                        .get("/api/articles?sort_by=article_id&order=asc&limit=5&p=2")
+                        .expect(200)
                         .then(({ body }) => {
-                            expect(body.msg).toBe("Bad Request")
+                            expect(body.articles).toHaveLength(5)
+                            body.articles.forEach(article => {
+                                expect(article.article_id > 5).toBe(true)
+                                expect(article.article_id <= 10).toBe(true)
+                            })
                         })
                 })
-                test("returns 400 bad request error if total_count query contains bad data", () => {
+                test("response includes total number of articles that meet filter requirements when total_count is true, regardless of limits", () => {
                     return request(app)
-                        .get("/api/articles?total_count=yes")
-                        .expect(400)
+                        .get("/api/articles?topic=mitch&limit=5&total_count=true")
+                        .expect(200)
                         .then(({ body }) => {
-                            expect(body.msg).toBe("Bad Request")
+                            expect(body.totalArticles).toBe(12)
                         })
+                })
+                test("responds with all items if limit specified is larger than the length of array", () => {
+                    return request(app)
+                        .get("/api/articles?limit=200")
+                        .expect(200)
+                        .then(({ body }) => {
+                            expect(body.articles).toHaveLength(13)
+                        })
+                })
+                describe("error handling", () => {
+                    test("returns 400 bad request if limit includes bad data", () => {
+                        return request(app)
+                            .get("/api/articles?limit=four")
+                            .expect(400)
+                            .then(({ body }) => {
+                                expect(body.msg).toBe("Bad Request")
+                            })
+                    })
+                    test("returns 404 not found error if page query not in range of pages in response", () => {
+                        return request(app)
+                            .get("/api/articles?p=200")
+                            .expect(404)
+                            .then(({ body }) => {
+                                expect(body.msg).toBe("Not Found")
+                            })
+                    })
+                    test("returns 400 bad request error if page query includes bad data", () => {
+                        return request(app)
+                            .get("/api/articles?p=two")
+                            .expect(400)
+                            .then(({ body }) => {
+                                expect(body.msg).toBe("Bad Request")
+                            })
+                    })
+                    test("returns 400 bad request error if total_count query contains bad data", () => {
+                        return request(app)
+                            .get("/api/articles?total_count=yes")
+                            .expect(400)
+                            .then(({ body }) => {
+                                expect(body.msg).toBe("Bad Request")
+                            })
+                    })
                 })
             })
-        })
         })
         describe("/comments", () => {
             describe("GET /api/articles/:article_id/comments", () => {
@@ -496,6 +506,40 @@ describe("/articles", () => {
                 })
             })
 
+        })
+        describe("GET /api/articles/author", () => {
+            test("response contains array of article objects with matching author", () => {
+                return request(app)
+                    .get("/api/articles/authors/rogersop")
+                    .expect(200)
+                    .then(({ body }) => {
+                        expect(body.articles).toBeInstanceOf(Array)
+                        expect(body.articles.length > 0).toBe(true)
+                        body.articles.forEach(article => {
+                            expect(article).toMatchObject({
+                                article_id: expect.any(Number),
+                                author: "rogersop",
+                                title: expect.any(String),
+                                body: expect.any(String),
+                                topic: expect.any(String),
+                                created_at: expect.any(String),
+                                votes: expect.any(Number),
+                                article_img_url: expect.any(String),
+                                // comment_count: expect.any(String)
+                            })
+                        })
+                    })
+            })
+            describe("error handling", () => {
+                test("responds with 404 status and article not found error when username does not exist", () => {
+                    return request(app)
+                        .get("/api/articles/authors/not_a_user")
+                        .expect(404)
+                        .then(({ body }) => {
+                            expect(body.msg).toBe("Not Found")
+                        })
+                })
+            })
         })
     })
     describe("POST", () => {
@@ -789,7 +833,7 @@ describe("/comments", () => {
                 })
             })
 
-    })
+        })
     })
     describe("PATCH", () => {
         describe("PATCH /api/comments/:comment_id", () => {
@@ -920,6 +964,29 @@ describe("/users", () => {
                             expect(body.msg).toBe("Not Found")
                         })
                 })
+            })
+        })
+        describe("GET /api/users/:username/comments", () => {
+            test("returns an array of comment objects where author matches specified user, including relevant article author and title", () => {
+                return request(app)
+                    .get("/api/users/icellusedkars/comments")
+                    .expect(200)
+                    .then(({ body }) => {
+                        expect(body.comments).toBeInstanceOf(Array)
+                        expect(body.comments.length > 0).toBe(true)
+                        body.comments.forEach(comment => {
+                            expect(comment).toMatchObject({
+                                comment_id: expect.any(Number),
+                                author: "icellusedkars",
+                                body: expect.any(String),
+                                created_at: expect.any(String),
+                                votes: expect.any(Number),
+                                article_id: expect.any(Number),
+                                article_title: expect.any(String),
+                                article_author: expect.any(String)
+                            })
+                        })
+                    })
             })
         })
 

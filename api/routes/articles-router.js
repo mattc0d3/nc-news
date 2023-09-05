@@ -1,5 +1,5 @@
 const articlesRouter = require('express').Router()
-const { getArticles, postArticle, getArticleById, getCommentsByArticleId, postCommentByArticleId, patchArticleById, destroyArticleById } = require(`${__dirname}/../controllers/articles.controllers`)
+const { getArticles, postArticle, getArticleById, getCommentsByArticleId, postCommentByArticleId, patchArticleById, destroyArticleById, getArticlesByAuthor } = require(`${__dirname}/../controllers/articles.controllers`)
 
 articlesRouter
     .route('/')
@@ -16,5 +16,9 @@ articlesRouter
     .route('/:article_id/comments')
     .get(getCommentsByArticleId)
     .post(postCommentByArticleId)
+
+articlesRouter
+    .route('/authors/:author')
+    .get(getArticlesByAuthor)
 
 module.exports = articlesRouter
