@@ -21,6 +21,6 @@ exports.selectCommentsByUsername = (username) => {
     articles.title AS article_title 
     FROM comments 
     JOIN articles ON articles.article_id = comments.article_id 
-    WHERE comments.author = 'icellusedkars';`)
+    WHERE comments.author = $1;`, [username])
     .then(({ rows }) => rows)
 }
