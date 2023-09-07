@@ -23,21 +23,36 @@ exports.getArticles = (req, res, next) => {
 
 exports.postArticle = (req, res, next) => {
     const { author, title, body, topic, article_img_url } = req.body
-    promises = [
+    const promiseChecks = [
         checkCategoryExists('users', 'username', author),
         checkCategoryExists('topics', 'slug', topic),
-        insertArticle(author, title, body, topic, article_img_url)
     ]
-
-    Promise.all(promises)
-        .then(resolvedPromises => {
-            const { article_id } = resolvedPromises[2]
-            return selectArticleById(article_id)
-        })
-        .then(postedArticle => {
-            res.status(201).send({ postedArticle })
+    Promise.all(promiseChecks)
+        .then(() => {
+            return insertArticle(author, title, body, topic, article_img_url)
+                .then(({ article_id }) => {
+                    return selectArticleById(article_id)
+                })
+                .then(postedArticle => {
+                    res.status(201).send({ postedArticle })
+                })
         })
         .catch(next)
+
+    // const promises = [
+    //     checkCategoryExists('users', 'username', author),
+    //     checkCategoryExists('topics', 'slug', topic),
+    //     insertArticle(author, title, body, topic, article_img_url)
+    // ]
+    // Promise.all(promises)
+    //     .then(resolvedPromises => {
+    //         const { article_id } = resolvedPromises[2]
+    //         return selectArticleById(article_id)
+    //     })
+    //     .then(postedArticle => {
+    //         res.status(201).send({ postedArticle })
+    //     })
+    //     .catch(next)
 }
 
 exports.getArticleById = (req, res, next) => {

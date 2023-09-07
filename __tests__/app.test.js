@@ -612,7 +612,7 @@ describe("/articles", () => {
                             expect(body.msg).toBe("Not Found")
                         })
                 })
-                test("returns 404 not found error when topic does not exists", () => {
+                test("returns 404 not found error when topic does not exist", () => {
                     return request(app)
                         .post("/api/articles")
                         .send({
